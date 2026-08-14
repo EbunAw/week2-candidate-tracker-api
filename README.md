@@ -31,5 +31,5 @@ The API supports creating, viewing, updating, and deleting candidates. It uses P
  1. Clone the repository
 
 ```bash
-git clone <YOUR-GITHUB-REPOSITORY-URL>
-cd FastAPIProject
+git clone https://github.com/EbunAw/week2-candidate-tracker-api.git
+cd week2-candidate-tracker-api
