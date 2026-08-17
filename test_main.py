@@ -111,3 +111,53 @@ def test_invalid_candidate_data():
     )
 
     assert response.status_code == 422
+
+def test_invalid_nigerian_phone_number():
+        response = client.post(
+            "/candidates",
+            json={
+                "name": "Invalid Phone",
+                "email": "invalidphone@gmail.com",
+                "phone": "12345678901"
+            }
+        )
+
+        assert response.status_code == 422
+
+def test_id_is_not_reused_after_deletion():
+    first_response = client.post(
+        "/candidates",
+        json={
+            "name": "First Candidate",
+            "email": "first@gmail.com",
+            "phone": "08012345678"
+        }
+    )
+
+    first_id = first_response.json()["id"]
+
+    second_response = client.post(
+        "/candidates",
+        json={
+            "name": "Second Candidate",
+            "email": "second@gmail.com",
+            "phone": "08112345678"
+        }
+    )
+
+    second_id = second_response.json()["id"]
+
+    client.delete(f"/candidates/{first_id}")
+
+    third_response = client.post(
+        "/candidates",
+        json={
+            "name": "Third Candidate",
+            "email": "third@gmail.com",
+            "phone": "09012345678"
+        }
+    )
+
+    third_id = third_response.json()["id"]
+
+    assert third_id > second_id

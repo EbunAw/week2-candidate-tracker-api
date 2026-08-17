@@ -7,22 +7,28 @@ app = FastAPI()
 class CandidateCreate(BaseModel):
     name: str
     email: EmailStr
-    phone: str = Field(pattern=r"^\d{11}$")
+    phone: str = Field(pattern=r"^(070|071|080|081|090|091)\d{8}$")
 
 class Candidate(CandidateCreate):
     id: int
 
 
 candidates = []
+next_candidate_id = 1
 
 
 @app.post("/candidates")
 def create_candidate(candidate: CandidateCreate):
+    global next_candidate_id
+
     new_candidate = Candidate(
-        id=len(candidates) + 1,
+        id=next_candidate_id,
         **candidate.model_dump()
     )
+
     candidates.append(new_candidate)
+    next_candidate_id += 1
+
     return new_candidate
 
 
