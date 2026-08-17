@@ -1,9 +1,16 @@
+import pytest
+import main
+
 from fastapi.testclient import TestClient
 
-from main import app
+
+client = TestClient(main.app)
 
 
-client = TestClient(app)
+@pytest.fixture(autouse=True)
+def reset_candidates():
+    main.candidates.clear()
+    main.next_candidate_id = 1
 
 
 def test_create_candidate():
@@ -161,3 +168,33 @@ def test_id_is_not_reused_after_deletion():
     third_id = third_response.json()["id"]
 
     assert third_id > second_id
+
+def test_get_missing_candidate():
+    response = client.get("/candidates/999")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Candidate not found"
+
+
+def test_update_candidate_with_invalid_data():
+    create_response = client.post(
+        "/candidates",
+        json={
+            "name": "Update Test",
+            "email": "update@example.com",
+            "phone": "08012345678",
+        },
+    )
+
+    candidate_id = create_response.json()["id"]
+
+    response = client.put(
+        f"/candidates/{candidate_id}",
+        json={
+            "name": "Invalid Update",
+            "email": "not-an-email",
+            "phone": "123",
+        },
+    )
+
+    assert response.status_code == 422
