@@ -1,16 +1,27 @@
 import pytest
-import main
-
 from fastapi.testclient import TestClient
 
+from database import SessionLocal
+from models import Candidate, Application
+from main import app
 
-client = TestClient(main.app)
+
+client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def reset_candidates():
-    main.candidates.clear()
-    main.next_candidate_id = 1
+def clean_database():
+    db = SessionLocal()
+
+    try:
+        db.query(Application).delete()
+        db.query(Candidate).delete()
+        db.commit()
+
+        yield
+
+    finally:
+        db.close()
 
 
 def test_create_candidate():
@@ -41,7 +52,6 @@ def test_get_candidates():
 
 
 def test_get_candidate():
-    # Create a candidate first
     create_response = client.post(
         "/candidates",
         json={
@@ -83,6 +93,7 @@ def test_update_candidate():
     assert response.status_code == 200
     assert response.json()["name"] == "Updated User"
     assert response.json()["email"] == "updated@example.com"
+    assert response.json()["phone"] == "08099999999"
 
 
 def test_delete_candidate():
@@ -101,7 +112,6 @@ def test_delete_candidate():
 
     assert response.status_code == 200
 
-    # Confirm candidate no longer exists
     get_response = client.get(f"/candidates/{candidate_id}")
 
     assert get_response.status_code == 404
@@ -119,17 +129,19 @@ def test_invalid_candidate_data():
 
     assert response.status_code == 422
 
-def test_invalid_nigerian_phone_number():
-        response = client.post(
-            "/candidates",
-            json={
-                "name": "Invalid Phone",
-                "email": "invalidphone@gmail.com",
-                "phone": "12345678901"
-            }
-        )
 
-        assert response.status_code == 422
+def test_invalid_nigerian_phone_number():
+    response = client.post(
+        "/candidates",
+        json={
+            "name": "Invalid Phone",
+            "email": "invalidphone@gmail.com",
+            "phone": "12345678901",
+        },
+    )
+
+    assert response.status_code == 422
+
 
 def test_id_is_not_reused_after_deletion():
     first_response = client.post(
@@ -137,8 +149,8 @@ def test_id_is_not_reused_after_deletion():
         json={
             "name": "First Candidate",
             "email": "first@gmail.com",
-            "phone": "08012345678"
-        }
+            "phone": "08012345678",
+        },
     )
 
     first_id = first_response.json()["id"]
@@ -148,8 +160,8 @@ def test_id_is_not_reused_after_deletion():
         json={
             "name": "Second Candidate",
             "email": "second@gmail.com",
-            "phone": "08112345678"
-        }
+            "phone": "08112345678",
+        },
     )
 
     second_id = second_response.json()["id"]
@@ -161,13 +173,14 @@ def test_id_is_not_reused_after_deletion():
         json={
             "name": "Third Candidate",
             "email": "third@gmail.com",
-            "phone": "09012345678"
-        }
+            "phone": "09012345678",
+        },
     )
 
     third_id = third_response.json()["id"]
 
     assert third_id > second_id
+
 
 def test_get_missing_candidate():
     response = client.get("/candidates/999")
