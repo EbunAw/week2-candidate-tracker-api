@@ -211,3 +211,44 @@ def test_update_candidate_with_invalid_data():
     )
 
     assert response.status_code == 422
+
+
+def test_create_application_for_candidate():
+    candidate_response = client.post(
+        "/candidates",
+        json={
+            "name": "Application Test",
+            "email": "application@example.com",
+            "phone": "08012345678",
+        },
+    )
+
+    assert candidate_response.status_code == 200
+
+    candidate_id = candidate_response.json()["id"]
+
+    application_response = client.post(
+        "/applications",
+        json={
+            "candidate_id": candidate_id,
+            "position": "Python Developer",
+            "status": "Applied",
+        },
+    )
+
+    assert application_response.status_code == 200
+
+    application_data = application_response.json()
+
+    assert application_data["candidate_id"] == candidate_id
+    assert application_data["position"] == "Python Developer"
+    assert application_data["status"] == "Applied"
+    assert "id" in application_data
+
+    application_id = application_data["id"]
+
+    get_response = client.get(f"/applications/{application_id}")
+
+    assert get_response.status_code == 200
+    assert get_response.json()["id"] == application_id
+    assert get_response.json()["candidate_id"] == candidate_id

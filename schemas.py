@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class CandidateCreate(BaseModel):
@@ -10,5 +10,16 @@ class CandidateCreate(BaseModel):
 class CandidateResponse(CandidateCreate):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ApplicationCreate(BaseModel):
+    candidate_id: int
+    position: str
+    status: str
+
+
+class ApplicationResponse(ApplicationCreate):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)

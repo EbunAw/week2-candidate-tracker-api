@@ -2,9 +2,13 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Candidate as CandidateModel
-from schemas import CandidateCreate, CandidateResponse
-
+from models import Candidate as CandidateModel, Application as ApplicationModel
+from schemas import (
+    CandidateCreate,
+    CandidateResponse,
+    ApplicationCreate,
+    ApplicationResponse,
+)
 app = FastAPI()
 
 
@@ -25,6 +29,47 @@ def create_candidate(candidate: CandidateCreate, db: Session = Depends(get_db)):
 @app.get("/candidates", response_model=list[CandidateResponse])
 def get_candidates(db: Session = Depends(get_db)):
     return db.query(CandidateModel).all()
+
+@app.post("/applications", response_model=ApplicationResponse)
+def create_application(
+    application: ApplicationCreate,
+    db: Session = Depends(get_db)
+):
+    candidate = db.get(CandidateModel, application.candidate_id)
+
+    if candidate is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Candidate not found"
+        )
+
+    new_application = ApplicationModel(
+        candidate_id=application.candidate_id,
+        position=application.position,
+        status=application.status
+    )
+
+    db.add(new_application)
+    db.commit()
+    db.refresh(new_application)
+
+    return new_application
+
+
+@app.get("/applications/{application_id}", response_model=ApplicationResponse)
+def get_application(
+    application_id: int,
+    db: Session = Depends(get_db)
+):
+    application = db.get(ApplicationModel, application_id)
+
+    if application is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found"
+        )
+
+    return application
 
 
 @app.get("/")
