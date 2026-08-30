@@ -1,12 +1,30 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from auth import hash_password
 from database import SessionLocal
-from models import Candidate, Application
+from models import Candidate, Application, User
 from main import app
 
 
 client = TestClient(app)
+
+def get_auth_headers():
+    response = client.post(
+        "/login",
+        data={
+            "username": "oregeorge",
+            "password": "TestPassword123!",
+        },
+    )
+
+    assert response.status_code == 200
+
+    token = response.json()["access_token"]
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }
 
 
 @pytest.fixture(autouse=True)
@@ -16,6 +34,15 @@ def clean_database():
     try:
         db.query(Application).delete()
         db.query(Candidate).delete()
+        db.query(User).delete()
+        db.commit()
+
+        test_user = User(
+            username="oregeorge",
+            password_hash=hash_password("TestPassword123!")
+        )
+
+        db.add(test_user)
         db.commit()
 
         yield
@@ -25,8 +52,11 @@ def clean_database():
 
 
 def test_create_candidate():
+    headers = get_auth_headers()
+
     response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Test User",
             "email": "test@example.com",
@@ -45,15 +75,23 @@ def test_create_candidate():
 
 
 def test_get_candidates():
-    response = client.get("/candidates")
+    headers = get_auth_headers()
+
+    response = client.get(
+        "/candidates",
+        headers=headers
+    )
 
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
 
 def test_get_candidate():
+    headers = get_auth_headers()
+
     create_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Get Test",
             "email": "get@example.com",
@@ -63,15 +101,20 @@ def test_get_candidate():
 
     candidate_id = create_response.json()["id"]
 
-    response = client.get(f"/candidates/{candidate_id}")
+    response = client.get(
+        f"/candidates/{candidate_id}",
+        headers=headers,
+    )
 
     assert response.status_code == 200
     assert response.json()["id"] == candidate_id
 
-
 def test_update_candidate():
+    headers = get_auth_headers()
+
     create_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Update Test",
             "email": "update@example.com",
@@ -83,6 +126,7 @@ def test_update_candidate():
 
     response = client.put(
         f"/candidates/{candidate_id}",
+        headers=headers,
         json={
             "name": "Updated User",
             "email": "updated@example.com",
@@ -97,8 +141,11 @@ def test_update_candidate():
 
 
 def test_delete_candidate():
+    headers = get_auth_headers()
+
     create_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Delete Test",
             "email": "delete@example.com",
@@ -108,18 +155,26 @@ def test_delete_candidate():
 
     candidate_id = create_response.json()["id"]
 
-    response = client.delete(f"/candidates/{candidate_id}")
+    response = client.delete(
+        f"/candidates/{candidate_id}",
+        headers=headers,
+    )
 
     assert response.status_code == 200
 
-    get_response = client.get(f"/candidates/{candidate_id}")
+    get_response = client.get(
+        f"/candidates/{candidate_id}",
+        headers=headers,
+    )
 
     assert get_response.status_code == 404
 
-
 def test_invalid_candidate_data():
+    headers = get_auth_headers()
+
     response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Invalid User",
             "email": "not-an-email",
@@ -131,8 +186,11 @@ def test_invalid_candidate_data():
 
 
 def test_invalid_nigerian_phone_number():
+    headers = get_auth_headers()
+
     response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Invalid Phone",
             "email": "invalidphone@gmail.com",
@@ -144,8 +202,11 @@ def test_invalid_nigerian_phone_number():
 
 
 def test_id_is_not_reused_after_deletion():
+    headers = get_auth_headers()
+
     first_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "First Candidate",
             "email": "first@gmail.com",
@@ -157,6 +218,7 @@ def test_id_is_not_reused_after_deletion():
 
     second_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Second Candidate",
             "email": "second@gmail.com",
@@ -166,10 +228,14 @@ def test_id_is_not_reused_after_deletion():
 
     second_id = second_response.json()["id"]
 
-    client.delete(f"/candidates/{first_id}")
+    client.delete(
+        f"/candidates/{first_id}",
+        headers=headers,
+    )
 
     third_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Third Candidate",
             "email": "third@gmail.com",
@@ -183,15 +249,22 @@ def test_id_is_not_reused_after_deletion():
 
 
 def test_get_missing_candidate():
-    response = client.get("/candidates/999")
+    headers = get_auth_headers()
+
+    response = client.get(
+        "/candidates/999",
+        headers=headers,
+    )
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Candidate not found"
 
-
 def test_update_candidate_with_invalid_data():
+    headers = get_auth_headers()
+
     create_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Update Test",
             "email": "update@example.com",
@@ -203,6 +276,7 @@ def test_update_candidate_with_invalid_data():
 
     response = client.put(
         f"/candidates/{candidate_id}",
+        headers=headers,
         json={
             "name": "Invalid Update",
             "email": "not-an-email",
@@ -214,8 +288,11 @@ def test_update_candidate_with_invalid_data():
 
 
 def test_create_application_for_candidate():
+    headers = get_auth_headers()
+
     candidate_response = client.post(
         "/candidates",
+        headers=headers,
         json={
             "name": "Application Test",
             "email": "application@example.com",
@@ -229,6 +306,7 @@ def test_create_application_for_candidate():
 
     application_response = client.post(
         "/applications",
+        headers=headers,
         json={
             "candidate_id": candidate_id,
             "position": "Python Developer",
@@ -247,8 +325,93 @@ def test_create_application_for_candidate():
 
     application_id = application_data["id"]
 
-    get_response = client.get(f"/applications/{application_id}")
+    get_response = client.get(
+        f"/applications/{application_id}",
+        headers=headers,
+    )
 
     assert get_response.status_code == 200
     assert get_response.json()["id"] == application_id
     assert get_response.json()["candidate_id"] == candidate_id
+
+def test_protected_endpoint_requires_authentication():
+    response = client.get("/candidates")
+
+    assert response.status_code == 401
+
+def test_login_rate_limit():
+    for _ in range(5):
+        response = client.post(
+            "/login",
+            data={
+                "username": "oregeorge",
+                "password": "WrongPassword123!",
+            },
+        )
+
+        assert response.status_code == 401
+
+    response = client.post(
+        "/login",
+        data={
+            "username": "oregeorge",
+            "password": "WrongPassword123!",
+        },
+    )
+
+    assert response.status_code == 429
+
+def test_sensitive_data_is_masked():
+    from logging_config import mask_sensitive_data
+
+    data = {
+        "username": "oregeorge",
+        "password": "TestPassword123!",
+        "password_hash": "$argon2id$example",
+        "access_token": "secret-token",
+        "nin": "12345678901",
+        "bvn": "12345678901",
+        "card_number": "4111111111111111",
+    }
+
+    masked = mask_sensitive_data(data)
+
+    assert masked["username"] == "oregeorge"
+    assert masked["password"] == "***"
+    assert masked["password_hash"] == "***"
+    assert masked["access_token"] == "***"
+    assert masked["nin"] == "***"
+    assert masked["bvn"] == "***"
+    assert masked["card_number"] == "***"
+
+def test_global_exception_handler():
+    from main import global_exception_handler
+    from starlette.requests import Request
+
+    request = Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/test-error",
+            "headers": [],
+            "query_string": b"",
+            "scheme": "http",
+            "server": ("testserver", 80),
+            "client": ("testclient", 1234),
+        }
+    )
+
+    response = __import__("asyncio").run(
+        global_exception_handler(
+            request,
+            Exception("database password=secret123")
+        )
+    )
+
+    assert response.status_code == 500
+
+    body = response.body.decode()
+
+    assert "An unexpected error occurred." in body
+    assert "secret123" not in body
+    assert "password" not in body
