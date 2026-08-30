@@ -29,6 +29,9 @@ jobs:
       POSTGRES_DB: fastapi_db
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
+      JWT_SECRET_KEY: test-secret-key-for-ci
+      JWT_ALGORITHM: HS256
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: 30
 
     steps:
       - name: Checkout repository
