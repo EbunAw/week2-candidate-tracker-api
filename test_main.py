@@ -415,3 +415,43 @@ def test_global_exception_handler():
     assert "An unexpected error occurred." in body
     assert "secret123" not in body
     assert "password" not in body
+
+def test_register_user():
+    response = client.post(
+        "/register",
+        json={
+            "username": "newuser",
+            "password": "StrongPassword123!"
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["username"] == "newuser"
+    assert "id" in data
+    assert "password" not in data
+    assert "password_hash" not in data
+
+def test_duplicate_username_rejected():
+    first_response = client.post(
+        "/register",
+        json={
+            "username": "duplicateuser",
+            "password": "StrongPassword123!"
+        },
+    )
+
+    assert first_response.status_code == 200
+
+    second_response = client.post(
+        "/register",
+        json={
+            "username": "duplicateuser",
+            "password": "AnotherPassword123!"
+        },
+    )
+
+    assert second_response.status_code == 400
+    assert second_response.json()["detail"] == "Username already exists"

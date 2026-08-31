@@ -13,10 +13,15 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User as UserModel
 
-
 load_dotenv()
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+if not JWT_SECRET_KEY or len(JWT_SECRET_KEY) < 32:
+    raise RuntimeError(
+        "JWT_SECRET_KEY must be set and at least 32 characters long."
+    )
+
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(
     os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
