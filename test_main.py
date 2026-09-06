@@ -1,7 +1,11 @@
+from unittest.mock import patch
+from datetime import datetime, timedelta, timezone
+import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from auth import hash_password
+
+from auth import hash_password, JWT_ALGORITHM, JWT_SECRET_KEY
 from database import SessionLocal
 from models import Candidate, Application, User
 from main import app
@@ -455,3 +459,48 @@ def test_duplicate_username_rejected():
 
     assert second_response.status_code == 400
     assert second_response.json()["detail"] == "Username already exists"
+
+def test_expired_token_is_rejected():
+    expired_time = datetime.now(timezone.utc) - timedelta(minutes=5)
+
+    expired_token = jwt.encode(
+        {
+            "sub": "oregeorge",
+            "exp": expired_time,
+        },
+        JWT_SECRET_KEY,
+        algorithm=JWT_ALGORITHM,
+    )
+
+    headers = {
+        "Authorization": f"Bearer {expired_token}"
+    }
+
+    response = client.get(
+        "/candidates",
+        headers=headers,
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Could not validate credentials"
+
+def test_database_failure_returns_500():
+    with patch(
+        "database.SessionLocal",
+        side_effect=Exception("Simulated database failure")
+    ):
+        test_client = TestClient(
+            app,
+            raise_server_exceptions=False
+        )
+
+        response = test_client.post(
+            "/register",
+            json={
+                "username": "database_failure_user",
+                "password": "TestPassword123!"
+            }
+        )
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "An unexpected error occurred."

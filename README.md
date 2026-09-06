@@ -45,3 +45,65 @@ The API supports creating, viewing, updating, and deleting candidates. It uses P
 ```bash
 git clone https://github.com/EbunAw/week2-candidate-tracker-api.git
 cd week2-candidate-tracker-api
+
+## Deployment
+
+### Local Docker Deployment
+
+The application can be run locally using Docker Compose. The setup contains two services:
+
+- `api` - FastAPI application
+- `db` - PostgreSQL database
+
+### Prerequisites
+
+The following tools are required:
+
+- Docker Desktop
+- Docker Compose
+
+### Environment Variables
+
+The application uses environment variables for database credentials and JWT configuration.
+
+Example `.env` configuration:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=fastapi_db
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+JWT_SECRET_KEY=your-secret-key
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+## Deployment
+
+### Local Docker Deployment
+
+The application runs locally using Docker Compose with two services:
+
+- `api` - FastAPI application
+- `db` - PostgreSQL database
+
+### Prerequisites
+
+- Docker Desktop
+- Docker Compose
+
+### Environment Variables
+
+The application uses environment variables for database credentials and JWT configuration.
+
+Example:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=fastapi_db
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+JWT_SECRET_KEY=your-secret-key
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
