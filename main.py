@@ -1,10 +1,11 @@
 import time
 import uuid
 from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.staticfiles import StaticFiles
 
 from auth import (
     check_login_rate_limit,
@@ -33,6 +34,8 @@ from schemas import (
 )
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -285,4 +288,4 @@ def login_user(
 
 @app.get("/")
 def root():
-    return {"message": "Candidate Tracker API"}
+    return FileResponse("static/index.html")

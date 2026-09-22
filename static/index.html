@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Tracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Login Screen -->
+    <section id="login-section" class="login-container">
+
+        <div class="login-card">
+
+            <div class="brand">
+                <div class="brand-icon">CT</div>
+                <h1>Candidate Tracker</h1>
+                <p>Manage candidates and applications</p>
+            </div>
+
+            <form id="login-form">
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Enter your username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="primary-button">
+                    Login
+                </button>
+
+                <p id="login-message" class="message"></p>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- Dashboard -->
+    <section id="dashboard-section" class="dashboard hidden">
+
+        <header class="topbar">
+
+            <div>
+                <h1>Candidate Tracker</h1>
+                <p>Manage your candidates and applications</p>
+            </div>
+
+            <button id="logout-button" class="logout-button">
+                Logout
+            </button>
+
+        </header>
+
+
+        <!-- Statistics -->
+        <div class="stats">
+
+            <div class="stat-card">
+                <span>Total Candidates</span>
+                <strong id="total-candidates">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Total Applications</span>
+                <strong id="total-applications">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Shortlisted</span>
+                <strong id="shortlisted-candidates">0</strong>
+            </div>
+
+        </div>
+
+
+        <!-- Candidates -->
+        <div class="content-card">
+
+            <div class="content-header">
+
+                <div>
+                    <h2>Candidates</h2>
+                    <p>View and manage candidates</p>
+                </div>
+
+                <button id="add-candidate-button" class="primary-button">
+                    + Add Candidate
+                </button>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="candidate-table-body">
+                        <!-- Candidates will be loaded here -->
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Add Candidate Modal -->
+    <div id="candidate-modal" class="modal hidden">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2 id="modal-title">Add Candidate</h2>
+
+                <button id="close-modal" class="close-button">
+                    ×
+                </button>
+            </div>
+
+
+            <form id="candidate-form">
+
+                <input type="hidden" id="candidate-id">
+
+                <div class="form-group">
+                    <label for="candidate-name">Full Name</label>
+                    <input
+                        type="text"
+                        id="candidate-name"
+                        placeholder="Enter candidate name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="candidate-email">Email</label>
+                    <input
+                        type="email"
+                        id="candidate-email"
+                        placeholder="candidate@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="candidate-phone">Phone Number</label>
+                    <input
+                        type="text"
+                        id="candidate-phone"
+                        placeholder="08012345678"
+                        required
+                    >
+                </div>
+
+                <p id="candidate-message" class="message"></p>
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        id="cancel-button"
+                        class="secondary-button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Save Candidate
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="/static/app.js"></script>
+
+</body>
+</html>
