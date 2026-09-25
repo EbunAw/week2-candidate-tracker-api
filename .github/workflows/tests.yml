@@ -1,37 +1,12 @@
-name: Python Tests
+name: Week 6 ML Project
 
 on:
   push:
   pull_request:
 
 jobs:
-  test:
+  train-model:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: fastapi_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d fastapi_db"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fastapi_db
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 5432
-      JWT_SECRET_KEY: test-secret-key-for-ci-0123456789
-      JWT_ALGORITHM: HS256
-      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: 30
 
     steps:
       - name: Checkout repository
@@ -45,8 +20,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run database migrations
-        run: alembic upgrade head
+      - name: Generate dataset
+        run: python generate_data.py
 
-      - name: Run tests
-        run: pytest
+      - name: Train and evaluate model
+        run: python train.py
