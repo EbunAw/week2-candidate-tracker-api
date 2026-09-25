@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ChurnAI Dashboard</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">C</div>
+            <div>
+                <h2>ChurnAI</h2>
+                <span>Prediction System</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="#" class="active">
+                <span>▣</span>
+                Dashboard
+            </a>
+
+            <a href="#">
+                <span>◉</span>
+                Predictions
+            </a>
+
+            <a href="#">
+                <span>▤</span>
+                Model Insights
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p>ML Classification Model</p>
+            <span>Random Forest</span>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+
+            <div>
+                <p class="breadcrumb">Dashboard / Overview</p>
+                <h1>Customer Churn Dashboard</h1>
+            </div>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                Model Online
+            </div>
+
+        </header>
+
+
+        <!-- INTRO -->
+        <section class="intro">
+
+            <div>
+                <h2>Customer Churn Prediction</h2>
+
+                <p>
+                    Use customer information to estimate the likelihood
+                    of customer churn and support retention decisions.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- KPI CARDS -->
+        <section class="metrics">
+
+            <div class="metric-card">
+                <div class="metric-icon">%</div>
+                <div>
+                    <p>Model Accuracy</p>
+                    <h3>73.7%</h3>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">P</div>
+                <div>
+                    <p>Precision</p>
+                    <h3>62.2%</h3>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">R</div>
+                <div>
+                    <p>Recall</p>
+                    <h3>65.7%</h3>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">A</div>
+                <div>
+                    <p>ROC-AUC</p>
+                    <h3>77.9%</h3>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- PREDICTION AREA -->
+        <section class="prediction-grid">
+
+            <!-- INPUT CARD -->
+            <div class="card prediction-card">
+
+                <div class="card-header">
+                    <div>
+                        <p class="section-label">PREDICTION</p>
+                        <h2>Customer Information</h2>
+                    </div>
+
+                    <span class="card-number">01</span>
+                </div>
+
+                <form id="predictionForm">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="tenure">Customer Tenure</label>
+
+                            <input
+                                type="number"
+                                id="tenure"
+                                placeholder="e.g. 24"
+                                required
+                            >
+
+                            <span class="field-hint">
+                                Months with the company
+                            </span>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="monthly_charges">
+                                Monthly Charges
+                            </label>
+
+                            <input
+                                type="number"
+                                id="monthly_charges"
+                                placeholder="e.g. 95"
+                                required
+                            >
+
+                            <span class="field-hint">
+                                Monthly customer charge
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="contract_type">
+                                Contract Type
+                            </label>
+
+                            <select id="contract_type" required>
+
+                                <option value="">
+                                    Select contract
+                                </option>
+
+                                <option value="0">
+                                    Month-to-month
+                                </option>
+
+                                <option value="1">
+                                    Annual
+                                </option>
+
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="payment_method">
+                                Payment Method
+                            </label>
+
+                            <select id="payment_method" required>
+
+                                <option value="">
+                                    Select payment method
+                                </option>
+
+                                <option value="0">
+                                    Bank Transfer
+                                </option>
+
+                                <option value="1">
+                                    Card
+                                </option>
+
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                    <button type="submit">
+                        Predict Customer Churn
+                        <span>→</span>
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- RESULT CARD -->
+            <div class="card result-card">
+
+                <div class="card-header">
+
+                    <div>
+                        <p class="section-label">PREDICTION RESULT</p>
+                        <h2>Churn Assessment</h2>
+                    </div>
+
+                    <span class="card-number">02</span>
+
+                </div>
+
+
+                <div id="result" class="result">
+
+                    <div class="empty-result">
+
+                        <div class="result-icon">
+                            ?
+                        </div>
+
+                        <h3>Awaiting Prediction</h3>
+
+                        <p>
+                            Enter the customer's information and
+                            click the prediction button to generate
+                            a churn assessment.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="insight">
+
+                    <h3>About this prediction</h3>
+
+                    <p>
+                        The model uses customer tenure, monthly charges,
+                        contract type and payment method to estimate
+                        churn probability.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MODEL INFORMATION -->
+        <section class="model-section">
+
+            <div class="card model-card">
+
+                <div>
+                    <p class="section-label">MODEL INFORMATION</p>
+
+                    <h2>Random Forest Classifier</h2>
+
+                    <p>
+                        This machine learning model was trained to
+                        classify customers based on their likelihood
+                        of churn. The current evaluation shows an
+                        ROC-AUC score of 77.9%.
+                    </p>
+                </div>
+
+
+                <div class="model-details">
+
+                    <div>
+                        <span>Training Records</span>
+                        <strong>493</strong>
+                    </div>
+
+                    <div>
+                        <span>Test Records</span>
+                        <strong>99</strong>
+                    </div>
+
+                    <div>
+                        <span>Features</span>
+                        <strong>4</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    document
+        .getElementById("predictionForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const tenure =
+                document.getElementById("tenure").value;
+
+            const monthlyCharges =
+                document.getElementById("monthly_charges").value;
+
+            const contractType =
+                document.getElementById("contract_type").value;
+
+            const paymentMethod =
+                document.getElementById("payment_method").value;
+
+
+            const response = await fetch("/predict", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    tenure: parseInt(tenure),
+
+                    monthly_charges:
+                        parseInt(monthlyCharges),
+
+                    contract_type:
+                        parseInt(contractType),
+
+                    payment_method:
+                        parseInt(paymentMethod)
+
+                })
+
+            });
+
+
+            const result =
+                await response.json();
+
+
+            const resultBox =
+                document.getElementById("result");
+
+
+            resultBox.style.display = "block";
+
+
+            if (result.prediction === 1) {
+
+                resultBox.innerHTML = `
+
+                    <div class="prediction-output churn">
+
+                        <div class="result-icon">
+                            !
+                        </div>
+
+                        <p class="prediction-label">
+                            PREDICTION
+                        </p>
+
+                        <h3>
+                            Customer is likely to churn
+                        </h3>
+
+                        <div class="probability">
+                            ${Math.round(
+                                result.churn_probability * 100
+                            )}%
+                        </div>
+
+                        <p class="probability-label">
+                            Churn Probability
+                        </p>
+
+                    </div>
+
+                `;
+
+            } else {
+
+                resultBox.innerHTML = `
+
+                    <div class="prediction-output safe">
+
+                        <div class="result-icon">
+                            ✓
+                        </div>
+
+                        <p class="prediction-label">
+                            PREDICTION
+                        </p>
+
+                        <h3>
+                            Customer is unlikely to churn
+                        </h3>
+
+                        <div class="probability">
+                            ${Math.round(
+                                result.churn_probability * 100
+                            )}%
+                        </div>
+
+                        <p class="probability-label">
+                            Churn Probability
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+        });
+
+</script>
+
+</body>
+</html>
